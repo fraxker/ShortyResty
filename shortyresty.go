@@ -65,22 +65,19 @@ func handleShorten(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
-	// variable to hold id for url
 	var id string
-
-	// Check to see if url is already in map
-	// If so, set the url equal to that key
-	for k, v := range m {
-		if v == u.Url {
-			id = k
-			break
+	// Generate new ID for the url
+	// This is nessecary for a POST request.
+	// If this were a PUT request, then we would check the map to see if the id is already present
+	for id == "" {
+		id = StringWithCharset(id_length, charset)
+		_, prs := m[id]
+		// If randomly generated id matches another id generated, regenerate the id
+		if prs {
+			id = ""
 		}
 	}
-	// Otherwise, generate new id and add it to the map
-	if id == "" {
-		id = StringWithCharset(id_length, charset)
-		m[id] = u.Url
-	}
+	m[id] = u.Url
 
 	// Assemble url to send back
 	short_url := "http://127.0.0.1:" + server_port + "/" + id
