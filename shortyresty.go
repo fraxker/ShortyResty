@@ -92,8 +92,13 @@ func handleShorten(w http.ResponseWriter, r *http.Request) {
 // forwardShort handles http requests from the /{id} endpoint.
 // This endpoint, when given a valid id will 302 forward the request
 // onto the original url from the map.
-// The request will return 400 Bad Request if the ID given is not present.
+// The request will return 400 Bad Request if the ID given is not present or the request is not GET.
 func forwardShort(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		// If not, throw error
+		http.Error(w, "Only GET is supported at this endpoint", http.StatusBadRequest)
+		return
+	}
 	// Get the id from the REST api
 	vars := mux.Vars(r)
 	id := vars["id"]
